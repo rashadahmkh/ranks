@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Codeforces Ranking Checker</title>
+</head>
+<body>
+    <h1>Check Codeforces Ranking</h1>
+    
+    <form id="rankingForm">
+        <label for="email">Friend's Email:</label><br>
+        <input type="email" id="email" name="email" required><br><br>
+        
+        <label for="cf_username">Friend's Codeforces Username:</label><br>
+        <input type="text" id="cf_username" name="cf_username" required><br><br>
+        
+        <input type="submit" value="Check Ranking">
+    </form>
+    
+    <h2>Results</h2>
+    <div id="result"></div>
+    
+    <script>
+        document.getElementById('rankingForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            var email = document.getElementById('email').value;
+            var cfUsername = document.getElementById('cf_username').value;
+            
+            // Call the function to fetch Codeforces ranking data
+            getRanking(cfUsername);
+        });
+
+        function getRanking(username) {
+            var url = `https://codeforces.com/api/user.info?handles=${username}`;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "OK") {
+                        const user = data.result[0];
+                        const resultDiv = document.getElementById('result');
+                        resultDiv.innerHTML = `
+                            <p>Email: ${document.getElementById('email').value}</p>
+                            <p>Codeforces Username: ${user.handle}</p>
+                            <p>Rank: ${user.rank}</p>
+                            <p>Rating: ${user.rating}</p>
+                            <p>Max Rating: ${user.maxRating}</p>
+                            <p>Contribution: ${user.contribution}</p>
+                        `;
+                    } else {
+                        document.getElementById('result').innerHTML = '<p>User not found on Codeforces.</p>';
+                    }
+                })
+                .catch(err => {
+                    console.error('Error fetching ranking data: ', err);
+                    document.getElementById('result').innerHTML = '<p>Error fetching data. Try again later.</p>';
+                });
+        }
+    </script>
+</body>
+</html>
